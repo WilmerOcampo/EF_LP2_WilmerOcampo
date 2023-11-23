@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title th:text="${titulo}"></title>
+
+    <!-- CSS -->
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/css/styles.css}" rel="stylesheet">
+
+</head>
+<body>
+
+<header th:insert="~{/snippets/header :: header}"></header>
+
+<!-- Container -->
+<div class="container">
+    <h2 class="mt-4 mb-3">
+        <small>Carrito</small>
+    </h2>
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-9">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Habitación N°</th>
+                            <th scope="col">Tipo</th>
+                            <th scope="col">Precio</th>
+                            <th scope="col">Acción</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="carrito : ${carrito}">
+                            <td th:text="${carrito.get().numero}"></td>
+                            <td th:text="${carrito.get().tipo}"></td>
+                            <td th:text="${#numbers.formatDecimal(carrito.get().precio, 1, 'COMMA', 2, 'POINT')}"></td>
+                            <td><!--a href="#" class="btn btn-danger">Quitar</a-->
+                                <form method="post" th:action="@{'/reservas/quitar/' + ${carrito.get().id}}">
+                                    <button type="submit" class="btn btn-danger">Quitar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>Datos del Usuario</h4>
+                    <form class="form-horizontal mt-4" id="form-usuario" th:action="@{/reservas/save}" method="post">
+                        <div class="row mb-3">
+                            <label for="nombre" class="col-sm-2 col-form-label">Nombre: </label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="nombre" name="nombre"
+                                       placeholder="Nombre del Usuario" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="email" class="col-sm-2 col-form-label">Email: </label>
+                            <div class="col-sm-10">
+                                <input type="email" class="form-control" id="email" name="email"
+                                       placeholder="Email del Usuario" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="telefono" class="col-sm-2 col-form-label">Teléfono: </label>
+                            <div class="col-sm-10">
+                                <input type="number" class="form-control" id="telefono" name="telefono"
+                                       placeholder="Teléfono del Usuario" required>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <label for="fecInicio" class="col-sm-2 col-form-label">Fecha Inicio: </label>
+                            <div class="col-sm-10">
+                                <input type="date" class="form-control" id="fecInicio" name="fecInicio" required>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="fecFin" class="col-sm-2 col-form-label">Fecha Fin: </label>
+                            <div class="col-sm-10">
+                                <input type="date" class="form-control" id="fecFin" name="fecFin" required>
+                            </div>
+                        </div>
+
+                        <input id="idHabitacion" name="idHabitacion" type="text" hidden="hidden" th:value="${idHab}">
+                        <input id="total" name="total" type="text" hidden="hidden" th:value="${totalCarrito}">
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-dark">Reservar</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-lg-3">
+                    <h2 class="card-title">TOTAL</h2>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <div class="monto-total">
+                                <h5 th:text="'Monto Total: S/. ' + ${totalCarrito}"></h5>
+                            </div>
+                        </li>
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div class="text-center">
+                                    <a class="btn btn-dark" th:href="@{/}">Habitaciones</a>
+                                </div>
+
+                                <form class="text-center" method="post" action="/productos/vaciarCarrito">
+                                    <button type="button" class="btn btn-danger text-center"
+                                            onclick="cancelarSweetAlert()">
+                                        Cancelar
+                                    </button>
+                                </form>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer th:insert="~{/snippets/footer :: footer}"></footer>
+
+<!-- Scripts -->
+<script th:src="@{/js/jquery-3.7.1.min.js}"></script>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/sweetalert2.all.min.js}"></script>
+<script th:src="@{/js/script.js}"></script>
+
+<script>
+    function reservaSweetAlert() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Reserva realizada con éxito',
+            showConfirmButton: true,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "/reservas/reservar";
+            }
+        });
+    }
+
+    function cancelarSweetAlert() {
+        Swal.fire({
+            icon: 'warning', // Ícono de advertencia
+            title: '¿Desea cancelar la Reserva?',
+            showConfirmButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'NO',
+            cancelButtonText: 'SÍ',
+        }).then((result) => {
+            if (!result.isConfirmed) {
+                window.location.href = "/reservas/vaciarCarrito";
+            }
+        });
+    }
+</script>
+</body>
+</html>
